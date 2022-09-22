@@ -14,10 +14,40 @@ app.use(express.json())
 const User = require('./models/User')
 const { is } = require('express/lib/request')
 
+//rota publica
 app.get('/', (_request, response) => {
 response.status(200).json({msg: "Acesso a Api"})
 })
 
+//rota privada
+app.get("/users/:id",checkToken, async(request, response) => {
+    const id = request.params.id
+    //check user
+    const user = await User.findById(id, '-password')
+
+    if(!user) {
+        return response.status(404).json({ msg: "Usuário não cadastrado!"})
+    }
+
+    response.status(200).json({ user })
+})
+
+function checkToken(request, response, next) {
+  const authHeader = request.headers['authorization']
+  const token = authHeader && authHeader.split(" ")[1]
+
+  if(!token) {
+   return response.status(401).json({msg: "Acesso negado"})
+  }
+
+  try {
+    const secret = process.env.SECRET
+    jwt.verify(token, secret)
+    next()
+  } catch (error) {
+     response.status(400).json({msg: "Token inválido!"})
+  }
+}
 
 //register user
 app.post('/auth/register', async(request, response) => {
@@ -86,7 +116,7 @@ app.post('/auth/login', async (request,response) => {
     }
 
     try {
-        const secret = process.env.secret
+        const secret = process.env.SECRET
         const token = jwt.sign({
             id: user._id
             },
