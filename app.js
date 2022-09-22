@@ -17,8 +17,6 @@ app.get('/', (_request, response) => {
 response.status(200).json({msg: "Acesso a Api"})
 })
 
-const dbUser = process.env.DB_USER
-const dbPassword = process.env.DB_PASS
 
 //register user
 app.post('/auth/register', async(request, response) => {
@@ -33,11 +31,41 @@ app.post('/auth/register', async(request, response) => {
     if(!password) {
         return response.status(422).json({msg: "Senha é obrigatorio!"})
     }
-
+    
     if(password !== confirmpassword) {
         return response.status(422).json({msg: " As senhas não conferem! "})
     }
+    
+  //checando usuario
+  const userExists = await User.findOne({email: email})
+  if(userExists) {
+    return response.status(422).json({msg: "Utilize outro email"})
+  }
+
+  //crete password
+  const salt = await bycrypt.genSalt(12)
+  const passwordHash = await bycrypt.hash(password, salt)
+
+  //create user
+  const user = new User({
+    name, email, password
+  })
+
+  try {
+     await user.save()
+     response.status(201).json({msg: "Usuario criado com sucesso"})
+  } catch(error) {
+    console.log(error)
+     response.status(500).json({msg: "aconteceu erro no servidor"}) // fins didácticos
+  }
+
 })
+
+
+
+
+const dbUser = process.env.DB_USER
+const dbPassword = process.env.DB_PASS
 
 mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster0.qqskcdq.mongodb.net/?retryWrites=true&w=majority`).then(() => {
     app.listen(3000)
