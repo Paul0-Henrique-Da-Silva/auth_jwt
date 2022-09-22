@@ -9,6 +9,10 @@ const app = express()
 // config JSON
 app.use(express.json())
 
+
+//models
+const User = require('./models/User')
+
 app.get('/', (_request, response) => {
 response.status(200).json({msg: "Acesso a Api"})
 })
@@ -22,6 +26,16 @@ app.post('/auth/register', async(request, response) => {
     //validação
     if(!name) {
         return response.status(422).json({msg: "Nome é obrigatorio!"})
+    }
+    if(!email) {
+        return response.status(422).json({msg: "E-mail é obrigatorio!"})
+    }
+    if(!password) {
+        return response.status(422).json({msg: "Senha é obrigatorio!"})
+    }
+
+    if(password !== confirmpassword) {
+        return response.status(422).json({msg: " As senhas não conferem! "})
     }
 })
 
