@@ -3,7 +3,7 @@ Autenticação com JWT
 
 dados do banco ...
 mongo atlas
-![img]('Screenshot at 2022-09-21 23-19-00.png')
+![img](Screenshot-2022-09-21 23-19-00.png)
 
 rota pública
 
