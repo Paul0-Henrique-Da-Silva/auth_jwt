@@ -12,6 +12,7 @@ app.use(express.json())
 
 //models
 const User = require('./models/User')
+const { is } = require('express/lib/request')
 
 app.get('/', (_request, response) => {
 response.status(200).json({msg: "Acesso a Api"})
@@ -48,7 +49,7 @@ app.post('/auth/register', async(request, response) => {
 
   //create user
   const user = new User({
-    name, email, password
+    name, email, password: passwordHash
   })
 
   try {
@@ -60,8 +61,30 @@ app.post('/auth/register', async(request, response) => {
   }
 
 })
+//login user
+app.post('/auth/login', async (request,response) => {
+    const {email, password} = request.body
 
+    //validações
+    if(!email) {
+        return response.status(422).json({msg: "E-mail é obrigatorio!"})
+    }
+    if(!password) {
+        return response.status(422).json({msg: "Senha é obrigatorio!"})
+    }
 
+    //chegando se existe
+    const user = await User.findOne({email: email})
+    if(!user) {
+      return response.status(422).json({msg: "Usuário não encontrado!"})
+    }
+
+    //conferir senha
+    const checkPassword = await bycrypt.compare(password, user.password)
+    if(!checkPassword) {
+        return response.status(422).json({msg: "Senha inválida!"})
+    }
+})
 
 
 const dbUser = process.env.DB_USER
