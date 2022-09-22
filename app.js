@@ -84,6 +84,21 @@ app.post('/auth/login', async (request,response) => {
     if(!checkPassword) {
         return response.status(422).json({msg: "Senha inválida!"})
     }
+
+    try {
+        const secret = process.env.secret
+        const token = jwt.sigm({
+            id: user._id
+            },
+            secret,
+        )
+
+        response.status(200).json({msg: "Autenticação realizada com sucesso", token})
+    } catch (error) {
+        console.log(error)
+        response.status(500).json({msg: "aconteceu erro no servidor"}) 
+    }
+
 })
 
 
