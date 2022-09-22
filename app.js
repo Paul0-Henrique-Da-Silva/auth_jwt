@@ -87,7 +87,7 @@ app.post('/auth/login', async (request,response) => {
 
     try {
         const secret = process.env.secret
-        const token = jwt.sigm({
+        const token = jwt.sign({
             id: user._id
             },
             secret,
